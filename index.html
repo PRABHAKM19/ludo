@@ -3,220 +3,185 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Ludo Royale — Modern Ludo Game</title>
-
+<title>Ludo</title>
 <style>
-:root{
-  --bg:#070b16;
-  --bg2:#10182a;
-  --fg:#f5f7ff;
-  --muted:#9aa8c2;
-  --card:rgba(17,25,43,.78);
-  --line:rgba(255,255,255,.12);
-  --accent:#7c5cff;
-  --accent2:#00d9ff;
-  --shadow:0 24px 70px rgba(0,0,0,.45);
-  --red:#ff4d5f; --green:#31d17c; --yellow:#ffc83d; --blue:#3da5ff;
-}
+:root{--bg:#e9eef2;--fg:#1b2430;--card:#fff;--line:#c9d3dc;--acc:#1b2430;--accfg:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#11161d;--fg:#e8edf2;--card:#1b232d;--line:#33404e;--acc:#e8edf2;--accfg:#11161d}}
+:root[data-theme="dark"]{--bg:#11161d;--fg:#e8edf2;--card:#1b232d;--line:#33404e;--acc:#e8edf2;--accfg:#11161d}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
-html,body{min-height:100%;margin:0}
-body{
-  margin:0;
-  color:var(--fg);
-  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
-  background:
-    radial-gradient(circle at 10% 10%,rgba(124,92,255,.20),transparent 30%),
-    radial-gradient(circle at 90% 15%,rgba(0,217,255,.14),transparent 28%),
-    radial-gradient(circle at 50% 100%,rgba(255,77,95,.10),transparent 35%),
-    linear-gradient(135deg,#050812,#0b1120 55%,#080d18);
-  display:grid;
-  grid-template-columns:minmax(0,760px) 360px;
-  grid-template-rows:auto 1fr;
-  grid-template-areas:"head side" "board side";
-  justify-content:center;
-  align-items:center;
-  gap:22px 28px;
-  padding:28px;
-  min-height:100vh;
-  min-height:100dvh;
-  overflow:auto;
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"Trebuchet MS",system-ui,-apple-system,"Segoe UI",sans-serif;display:grid;grid-template-areas:"t" "m" "b" "c";justify-items:center;align-content:center;gap:10px;padding:10px;min-height:100vh;min-height:100dvh}
+h1{grid-area:t}#msg{grid-area:m}canvas{grid-area:b}.row{grid-area:c}
+@media (min-aspect-ratio:11/10){
+body{grid-template-areas:"b ." "b t" "b m" "b c" "b .";grid-template-columns:auto 340px;grid-template-rows:1fr auto auto auto 1fr;column-gap:28px;justify-content:center}
+h1{font-size:2.2rem}#msg{font-size:1.25rem}.row{flex-wrap:wrap;justify-content:center;gap:12px}
+canvas{width:min(calc(100vh - 20px),calc(100vw - 400px))!important}
 }
-header{grid-area:head;display:flex;align-items:center;justify-content:space-between;padding:0 6px}
-.brand{display:flex;align-items:center;gap:12px}
-.logo{
-  width:46px;height:46px;border-radius:14px;
-  display:grid;place-items:center;font-size:24px;
-  background:linear-gradient(135deg,var(--accent),#a855f7);
-  box-shadow:0 10px 30px rgba(124,92,255,.35),inset 0 1px 0 rgba(255,255,255,.35);
-}
-h1{margin:0;font-size:clamp(1.55rem,3vw,2.15rem);letter-spacing:-.04em}
-.subtitle{margin:3px 0 0;color:var(--muted);font-size:.83rem}
-.status-pill{
-  padding:8px 12px;border:1px solid var(--line);border-radius:999px;
-  background:rgba(255,255,255,.055);font-size:.78rem;color:#cbd5e8
-}
-#msg{grid-area:side;margin:0;min-height:0}
-.side{
-  grid-area:side;
-  align-self:center;
-  display:flex;flex-direction:column;gap:14px;
-  min-width:0;
-}
-.panel-card{
-  background:linear-gradient(145deg,rgba(22,31,53,.88),rgba(10,16,29,.72));
-  border:1px solid var(--line);border-radius:24px;
-  box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.05);
-  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
-}
-.game-card{padding:20px}
-.turn-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.16em;color:#8190ad;font-weight:800}
-#msg{font-size:1.02rem;text-align:left;font-weight:700;line-height:1.45;max-width:none}
-.turn-box{display:flex;align-items:center;gap:12px;margin-top:10px}
-.turn-dot{width:11px;height:11px;border-radius:50%;background:var(--accent2);box-shadow:0 0 18px var(--accent2)}
-#dice{
-  width:84px;height:84px;border-radius:22px;
-  display:grid;place-items:center;font-size:3.15rem;line-height:1;
-  background:linear-gradient(145deg,#ffffff,#dfe7f4);
-  color:#111827;border:1px solid rgba(255,255,255,.7);
-  box-shadow:0 12px 30px rgba(0,0,0,.32),inset 0 2px 0 #fff;
-  transform:translateZ(0);
-}
-.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
-button,select{
-  font:inherit;border-radius:14px;cursor:pointer;font-weight:800;
-  transition:transform .16s ease,box-shadow .16s ease,filter .16s ease;
-}
-button{
-  min-height:48px;padding:.75em 1em;border:1px solid rgba(255,255,255,.12);
-  color:#fff;background:linear-gradient(135deg,#7c5cff,#5b43db);
-  box-shadow:0 10px 22px rgba(92,67,219,.25);
-}
-button:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 14px 28px rgba(92,67,219,.34)}
-button:active:not(:disabled){transform:translateY(0) scale(.98)}
-button:disabled{opacity:.4;cursor:not-allowed;filter:grayscale(.5)}
-#menu{background:rgba(255,255,255,.06)!important;color:#eaf0ff!important;border-color:var(--line)!important;box-shadow:none!important}
-.help{
-  padding:16px 18px;color:#aeb9cf;font-size:.78rem;line-height:1.6;
-}
-.help b{color:#eef2ff}
-.board-wrap{
-  grid-area:board;position:relative;display:grid;place-items:center;
-  padding:12px;border-radius:32px;
-  background:linear-gradient(145deg,rgba(255,255,255,.12),rgba(255,255,255,.025));
-  border:1px solid rgba(255,255,255,.10);
-  box-shadow:0 35px 90px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.12);
-}
-.board-wrap:before{
-  content:"";position:absolute;inset:8%;border-radius:50%;
-  background:radial-gradient(circle,rgba(124,92,255,.16),transparent 65%);
-  filter:blur(30px);pointer-events:none;
-}
-canvas{
-  position:relative;width:min(78vh,720px);max-width:100%;height:auto;aspect-ratio:1;
-  border-radius:24px;display:block;touch-action:manipulation;
-  background:#101827;
-  box-shadow:0 22px 55px rgba(0,0,0,.42),0 0 0 1px rgba(255,255,255,.15);
-}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px}
-.stat{padding:10px 8px;text-align:center;border-radius:14px;background:rgba(255,255,255,.045);border:1px solid var(--line)}
-.stat strong{display:block;font-size:1.05rem}.stat span{font-size:.66rem;color:#8794ad;text-transform:uppercase;letter-spacing:.08em}
-#panel{
-  position:fixed;inset:0;background:rgba(3,6,14,.78);backdrop-filter:blur(12px);
-  display:flex;align-items:center;justify-content:center;padding:18px;z-index:20;
-}
-#panel .box{
-  background:linear-gradient(145deg,#18233b,#0c1425);
-  border:1px solid rgba(255,255,255,.13);border-radius:26px;
-  padding:26px;width:min(92vw,390px);display:flex;flex-direction:column;gap:15px;
-  box-shadow:0 30px 90px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.07);
-}
-#panel h2{margin:0;font-size:1.55rem}
-#panel .intro{color:#93a2bd;font-size:.8rem;line-height:1.55}
+h1{margin:0;font-size:1.6rem;letter-spacing:.02em}
+#msg{min-height:2.8em;font-size:1.05rem;text-align:center;font-weight:600;max-width:560px}
+canvas{width:min(calc(100vw - 20px),calc(100vh - 210px));width:min(calc(100vw - 20px),calc(100dvh - 210px));height:auto;aspect-ratio:1;border-radius:10px;box-shadow:0 0 0 3px var(--line);background:#fff;touch-action:manipulation}
+.row{display:flex;align-items:center;gap:18px}
+#dice{width:76px;height:76px;border-radius:16px;background:#fff;color:#111;display:grid;place-items:center;font-size:3.4rem;line-height:1;box-shadow:0 0 0 3px var(--line)}
+button,select{font:inherit;padding:.7em 1.3em;border-radius:999px;border:2px solid var(--acc);background:var(--acc);color:var(--accfg);cursor:pointer;font-weight:700}
+select{background:var(--card);color:var(--fg);border-color:var(--line);border-radius:10px;padding:.5em .7em}
+button:disabled{opacity:.4;cursor:default}
+button:focus-visible,select:focus-visible{outline:3px solid #1e88e5;outline-offset:2px}
+#panel{position:fixed;inset:0;background:rgba(10,14,20,.7);display:flex;align-items:center;justify-content:center;padding:16px}
+#panel .box{background:var(--card);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:14px;width:min(92vw,340px)}
+#panel h2{margin:0}
 label{display:flex;justify-content:space-between;align-items:center;gap:10px}
-select{
-  color:#eef3ff;background:#121c30;border:1px solid var(--line);
-  padding:.62em .8em;border-radius:11px;
-}
-#seats{display:flex;flex-direction:column;gap:9px}
-#seats label{padding:9px 11px;background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:12px}
-#err{color:#ff7d8a}
 .hide{display:none!important}
-button:focus-visible,select:focus-visible,canvas:focus-visible{outline:3px solid #00d9ff;outline-offset:3px}
-@media(max-width:1050px){
-  body{grid-template-columns:minmax(0,760px);grid-template-rows:auto auto auto;grid-template-areas:"head" "board" "side";padding:18px}
-  header{width:min(760px,100%)}
-  .side{width:min(760px,100%);display:grid;grid-template-columns:1fr 1fr}
-  .help{grid-column:1/-1}
-}
-@media(max-width:620px){
-  body{padding:10px;gap:12px}
-  header{padding:0 4px}
-  .status-pill{display:none}
-  .board-wrap{padding:7px;border-radius:22px}
-  canvas{border-radius:17px}
-  .side{display:flex}
-  .game-card{padding:15px;border-radius:19px}
-  .controls{grid-template-columns:1fr 1fr}
-}
 </style>
-
 </head>
-
 <body>
-<header>
-  <div class="brand">
-    <div class="logo">🎲</div>
-    <div>
-      <h1>Ludo Royale</h1>
-      <div class="subtitle">Classic strategy • modern arcade experience</div>
-    </div>
-  </div>
-  <div class="status-pill">✨ Local multiplayer</div>
-</header>
-
-<div class="board-wrap">
-  <canvas id="cv" width="720" height="720" aria-label="Ludo board" tabindex="0"></canvas>
-</div>
-
-<aside class="side">
-  <section class="panel-card game-card">
-    <div class="turn-label">Current turn</div>
-    <div class="turn-box">
-      <div class="turn-dot"></div>
-      <div id="msg">Start a new game to play</div>
-    </div>
-    <div class="controls">
-      <div id="dice" aria-live="polite">⚀</div>
-      <div style="display:flex;align-items:center">
-        <button id="roll" disabled style="width:100%">Roll dice</button>
-      </div>
-    </div>
-    <div class="controls">
-      <button id="menu">New game</button>
-    </div>
-    <div class="stats">
-      <div class="stat"><strong>4</strong><span>Colors</span></div>
-      <div class="stat"><strong>6</strong><span>To start</span></div>
-      <div class="stat"><strong>57</strong><span>Finish</span></div>
-      <div class="stat"><strong>★</strong><span>Safe</span></div>
-    </div>
-  </section>
-  <section class="panel-card help">
-    <b>How to play</b><br>
-    Roll a 6 to leave the base. Tap a glowing piece when multiple moves are possible.
-    Capture opponents for a bonus turn, use star squares for safety, and reach the centre with an exact roll.
-    <br><br><b>Keyboard:</b> press Space to roll.
-  </section>
-</aside>
-
+<h1>Ludo</h1>
+<div id="msg"></div>
+<canvas id="cv" width="660" height="660" aria-label="Ludo board"></canvas>
+<div class="row"><div id="dice" aria-live="polite">⚀</div><button id="roll" disabled>Roll dice</button><button id="menu" style="background:var(--card);color:var(--fg);border-color:var(--line)">New game</button></div>
 <div id="panel"><div class="box">
-  <h2 id="ptitle">New game</h2>
-  <div class="intro">Choose who controls each colour. Play together on one device or let the computers battle it out.</div>
-  <div id="seats"></div>
-  <label><span>Computer speed</span><select id="speed"><option value="n">Normal</option><option value="f">Fast</option></select></label>
-  <small id="err"></small>
-  <button id="go">Start game</button>
+<h2 id="ptitle">New game</h2>
+<div id="seats" style="display:flex;flex-direction:column;gap:10px"></div>
+<label>Computer speed <select id="speed"><option value="n">Normal</option><option value="f">Fast</option></select></label>
+<small id="err" style="color:#e53935"></small>
+<button id="go">Start game</button>
+<small>Set each colour to Human, Computer or Off. Use several humans to play together on one device, or all Computer to watch. Roll a 6 to leave the base. A 6, a capture, or reaching home gives another turn. Stars and start squares are safe. Reach the centre with an exact roll.</small>
 </div></div>
+<script>
+const $=id=>document.getElementById(id),cv=$('cv'),x=cv.getContext('2d');
+const COL=['#e53935','#43a047','#fbc02d','#1e88e5'],NAMES=['Red','Green','Yellow','Blue'];
+const P=[[1,6],[2,6],[3,6],[4,6],[5,6],[6,5],[6,4],[6,3],[6,2],[6,1],[6,0],[7,0],[8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[9,6],[10,6],[11,6],[12,6],[13,6],[14,6],[14,7],[14,8],[13,8],[12,8],[11,8],[10,8],[9,8],[8,9],[8,10],[8,11],[8,12],[8,13],[8,14],[7,14],[6,14],[6,13],[6,12],[6,11],[6,10],[6,9],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8],[0,7],[0,6]];
+const ST=[0,13,26,39],SAFE=new Set([0,8,13,21,26,34,39,47]),ORG=[[0,0],[9,0],[9,9],[0,9]],SPOT=[[2,2],[4,2],[2,4],[4,4]];
+const hc=(c,k)=>[[1+k,7],[7,1+k],[13-k,7],[7,13-k]][c];
+const rnd=n=>Math.floor(Math.random()*n);
+let G=null,GID=0,K=44;
+function fit(){const s=Math.round(cv.getBoundingClientRect().width*(devicePixelRatio||1));if(s>0&&cv.width!==s){cv.width=cv.height=s}K=cv.width/15}
+const later=(f,ms)=>{const id=GID;setTimeout(()=>{if(id===GID)f()},ms*($('speed').value==='f'?.25:1))};
+$('seats').innerHTML=NAMES.map((nm,c)=>`<label><span><b style="color:${COL[c]}">●</b> ${nm}</span><select class="seat"><option value="h"${c?'':' selected'}>Human</option><option value="c"${c?' selected':''}>Computer</option><option value="o">Off</option></select></label>`).join('');
 
+// piece progress: -1 base, 0..50 shared track, 51..56 home column, 57 finished
+function xy(c,i,p){
+  if(p<0){const o=ORG[c],s=SPOT[i];return[o[0]+s[0],o[1]+s[1]]}
+  if(p<=50){const q=P[(ST[c]+p)%52];return[q[0]+.5,q[1]+.5]}
+  if(p<57){const q=hc(c,p-51);return[q[0]+.5,q[1]+.5]}
+  const d=[[-.75,0],[0,-.75],[.75,0],[0,.75]][c],s=(i-1.5)*.22;
+  return c%2?[7.5+s,7.5+d[1]]:[7.5+d[0],7.5+s];
+}
+function star(cx,cy,r){x.beginPath();for(let k=0;k<10;k++){const a=-Math.PI/2+k*Math.PI/5,q=k%2?r*.45:r;x[k?'lineTo':'moveTo'](cx+q*Math.cos(a),cy+q*Math.sin(a))}x.closePath();x.fill()}
+function cell(cx,cy,f){x.fillStyle=f;x.fillRect(cx,cy,1,1);x.strokeStyle='#39424e';x.lineWidth=.04;x.strokeRect(cx,cy,1,1)}
+
+function board(t){
+  x.fillStyle='#fff';x.fillRect(0,0,15,15);
+  ORG.forEach((o,c)=>{
+    x.fillStyle=COL[c];x.fillRect(o[0],o[1],6,6);
+    x.fillStyle='#fff';x.fillRect(o[0]+1,o[1]+1,4,4);
+    SPOT.forEach(s=>{x.beginPath();x.arc(o[0]+s[0],o[1]+s[1],.5,0,7);x.fillStyle=COL[c]+'55';x.fill()});
+    if(G&&G.phase!=='over'&&G.act[G.cur]===c){x.strokeStyle='#111';x.lineWidth=.16+.05*Math.sin(t/200);x.strokeRect(o[0]+.08,o[1]+.08,5.84,5.84)}
+  });
+  P.forEach((q,i)=>{const s=ST.indexOf(i);cell(q[0],q[1],s>=0?COL[s]:'#fff')});
+  for(let c=0;c<4;c++)for(let k=0;k<6;k++){const q=hc(c,k);cell(q[0],q[1],COL[c])}
+  x.fillStyle='#39424e';[8,21,34,47].forEach(i=>star(P[i][0]+.5,P[i][1]+.5,.36));
+  x.fillStyle='#fff';[0,13,26,39].forEach(i=>star(P[i][0]+.5,P[i][1]+.5,.32));
+  [[[6,6],[6,9]],[[6,6],[9,6]],[[9,6],[9,9]],[[6,9],[9,9]]].forEach((s,c)=>{
+    const o=[0,1,2,3][c];x.beginPath();x.moveTo(...s[0]);x.lineTo(...s[1]);x.lineTo(7.5,7.5);x.closePath();
+    x.fillStyle=COL[[0,1,2,3][c===1?1:c===2?2:c===3?3:0]];x.fill();
+  });
+}
+
+function draw(t){
+  fit();x.setTransform(K,0,0,K,0,0);
+  board(t);
+  if(G){
+    const groups={};
+    G.act.forEach(c=>G.pcs[c].forEach((p,i)=>{const [px,py]=xy(c,i,p),k=px+','+py;(groups[k]=groups[k]||[]).push({c,i,px,py})}));
+    Object.values(groups).forEach(g=>g.forEach((o,n)=>{
+      let px=o.px,py=o.py,r=.33;
+      if(g.length>1&&o.py!==7.5||g.length>1&&o.px!==7.5){r=.24;const a=n/g.length*6.283;px+=Math.cos(a)*.2;py+=Math.sin(a)*.2}
+      const hot=G.phase==='pick'&&G.act[G.cur]===o.c&&G.mv.includes(o.i);
+      x.beginPath();x.arc(px,py+.04,r,0,7);x.fillStyle='rgba(0,0,0,.3)';x.fill();
+      x.beginPath();x.arc(px,py,r,0,7);x.fillStyle=COL[o.c];x.fill();
+      x.lineWidth=.07;x.strokeStyle='#fff';x.stroke();
+      x.beginPath();x.arc(px-r*.3,py-r*.3,r*.25,0,7);x.fillStyle='rgba(255,255,255,.55)';x.fill();
+      if(hot){x.beginPath();x.arc(px,py,r+.1+.05*Math.sin(t/120),0,7);x.lineWidth=.08;x.strokeStyle='#111';x.stroke()}
+    }));
+  }
+  requestAnimationFrame(draw);
+}
+
+const msg=s=>$('msg').textContent=s;
+const face=d=>$('dice').textContent='⚀⚁⚂⚃⚄⚅'[d-1];
+
+function newGame(){
+  const S=[...document.querySelectorAll('.seat')].map(v=>v.value),act=[0,1,2,3].filter(c=>S[c]!=='o');
+  if(act.length<2){$('err').textContent='Pick at least two players.';return}
+  $('err').textContent='';GID++;
+  G={act,hum:act.map(c=>S[c]==='h'),pcs:[0,1,2,3].map(()=>[-1,-1,-1,-1]),cur:0,dice:1,phase:'roll',mv:[]};
+  $('panel').classList.add('hide');face(1);turnStart('');
+}
+function turnStart(note){
+  G.phase='roll';G.mv=[];const h=G.hum[G.cur];
+  msg(note+NAMES[G.act[G.cur]]+(h?"'s turn: roll the dice":' is thinking…'));
+  $('roll').disabled=!h;
+  if(!h)later(roll,900);
+}
+function roll(){
+  if(!G||G.phase!=='roll')return;
+  G.phase='busy';$('roll').disabled=true;let k=0;const id=GID;
+  const t=setInterval(()=>{if(id!==GID){clearInterval(t);return}face(1+rnd(6));if(++k>8){clearInterval(t);G.dice=1+rnd(6);face(G.dice);afterRoll()}},60);
+}
+function afterRoll(){
+  const c=G.act[G.cur],d=G.dice,mv=[];
+  G.pcs[c].forEach((p,i)=>{if(p<0?d===6:p+d<=57)mv.push(i)});
+  if(!mv.length){msg(NAMES[c]+' rolled '+d+': no legal move');later(next,1100);return}
+  G.mv=mv;
+  if(!G.hum[G.cur])later(()=>move(ai(mv)),700);
+  else if(mv.length===1)later(()=>move(mv[0]),450);
+  else{G.phase='pick';msg('Rolled '+d+': tap a glowing piece to move')}
+}
+function ai(mv){
+  const c=G.act[G.cur],d=G.dice;let best=mv[0],bs=-1e9;
+  mv.forEach(i=>{
+    const p=G.pcs[c][i],t=p<0?0:p+d;let s=t*.5+Math.random();
+    if(p<0)s+=30;if(t===57)s+=60;else if(t>50)s+=15;
+    if(t<=50){const ab=(ST[c]+t)%52;
+      if(SAFE.has(ab))s+=12;
+      else G.act.forEach(o=>{if(o!==c)G.pcs[o].forEach(q=>{if(q>=0&&q<=50&&(ST[o]+q)%52===ab)s+=80})})}
+    if(p>=0&&p<=50&&!SAFE.has((ST[c]+p)%52))s+=6;
+    if(s>bs){bs=s;best=i}
+  });
+  return best;
+}
+function move(i){
+  G.phase='busy';G.mv=[];
+  const a=G.pcs[G.act[G.cur]],tgt=a[i]<0?0:a[i]+G.dice;
+  (function step(){if(a[i]<tgt){a[i]++;later(step,130)}else land(i)})();
+}
+function land(i){
+  const c=G.act[G.cur],p=G.pcs[c][i];let bonus=G.dice===6,note='';
+  if(p<=50){
+    const ab=(ST[c]+p)%52;
+    if(!SAFE.has(ab))G.act.forEach(o=>{if(o!==c)G.pcs[o].forEach((q,j)=>{
+      if(q>=0&&q<=50&&(ST[o]+q)%52===ab){G.pcs[o][j]=-1;bonus=true;note=NAMES[c]+' captured a '+NAMES[o]+' piece! '}})});
+  }
+  if(p===57){bonus=true;note='A piece reached home! '}
+  if(G.pcs[c].every(q=>q===57)){
+    G.phase='over';msg(NAMES[c]+' wins!');$('ptitle').textContent=NAMES[c]+' wins!';
+    $('go').textContent='Play again';$('panel').classList.remove('hide');return;
+  }
+  if(bonus)turnStart(note+'Roll again. ');else next(note);
+}
+function next(note){G.cur=(G.cur+1)%G.act.length;turnStart(typeof note==='string'?note:'')}
+
+cv.addEventListener('click',e=>{
+  if(!G||G.phase!=='pick'||!G.hum[G.cur])return;
+  const r=cv.getBoundingClientRect(),mx=(e.clientX-r.left)/r.width*15,my=(e.clientY-r.top)/r.height*15,c=G.act[G.cur];
+  let best=-1,bd=.7;
+  G.mv.forEach(i=>{const [px,py]=xy(c,i,G.pcs[c][i]),d=Math.hypot(px-mx,py-my);if(d<bd){bd=d;best=i}});
+  if(best>=0)move(best);
+});
+$('menu').onclick=()=>{if(G){GID++;G.phase='over'}$('ptitle').textContent='New game';$('go').textContent='Start game';$('panel').classList.remove('hide')};
+$('roll').onclick=roll;$('go').onclick=newGame;
+addEventListener('keydown',e=>{if(e.code==='Space'&&G&&G.phase==='roll'&&G.hum[G.cur]){e.preventDefault();roll()}});
+requestAnimationFrame(draw);
+</script>
 </body>
 </html>
